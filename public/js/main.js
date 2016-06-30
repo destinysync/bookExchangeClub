@@ -50,7 +50,7 @@ $(document).ready(function () {
         // });
 
         $.post('/addBooks/' + str, function (data, status) {
-
+alert(data);
         });
     }
     

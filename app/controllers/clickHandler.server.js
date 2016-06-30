@@ -1,8 +1,6 @@
 'use strict';
 
-var Yelp = require('yelp');
 var path = process.cwd();
-var passport = require('passport');
 
 function ClickHandler() {
 
@@ -19,23 +17,63 @@ function ClickHandler() {
     
     this.addBooks = function (req, res) {
         console.log('here');
-        require('https').request({
-            host: 'googleapis.com',
+        var json = '';
+        function sendJSON() {
+            console.log('json:  ' + json);
+            res.end(json);
+        }
+        
+        function getJSON(callback) {
+             require('https').request({
+            host: 'www.googleapis.com',
             path: '/books/v1/volumes?q=flowers+inauthor:keyes&key=AIzaSyAoXm0EJoHGtxLnyJyammD_bNoNNFS0RGs',
             method: 'GET'
         }, function(res) {
-            console.log('here 2');
             res.setEncoding('utf8');
             var body = '';
             res.on('data', function(chunk) {
                 body += chunk;
             });
             res.on('end', function() {
-                body = JSON.parse(body);
-                console.log(body);
-            })
+                console.log('gggggggggggggg');
+                // body = JSON.parse(body);
+                json = body;
+                callback();
+            });
         }).end();
-    }
+        }
+       
+       
+       
+       
+       
+       
+       
+       
+        //     require('https').request('https://www.googleapis.com/books/v1/volumes?q=flowers+inauthor:keyes&key=AIzaSyAoXm0EJoHGtxLnyJyammD_bNoNNFS0RGs', function(res) {
+        //     res.setEncoding('utf8');
+        //     var body = '';
+        //     res.on('data', function(chunk) {
+        //         body += chunk;
+        //     });
+        //     res.on('end', function() {
+        //         console.log(body);
+        //         // body = JSON.parse(body);
+        //         json = body;
+        //         // callback();
+        //     });
+        // }).end();
+       
+       
+       
+       
+       
+       
+       
+       
+       
+      getJSON(sendJSON);
+    };
 }
 
 module.exports = ClickHandler;

@@ -14,7 +14,7 @@ var app = express();
 app.use(cookieParser());
 require('./app/config/passport')(passport);
 
-mongoose.connect("127.0.0.1:27017");
+mongoose.connect("mongodb://admin:admin2020@ds015720.mlab.com:15720/heroku_8mmg8q9c");
 
 app.use('/controllers', express.static(process.cwd() + '/app/controllers'));
 app.use('/public', express.static(process.cwd() + '/public'));

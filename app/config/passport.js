@@ -1,7 +1,6 @@
 'use strict';
 
 var GitHubStrategy = require('passport-github').Strategy;
-var TwitterStrategy = require('passport-twitter').Strategy;
 var LocalStrategy = require('passport-local').Strategy;
 var User = require('../models/users');
 var configAuth = require('./auth');
@@ -51,50 +50,6 @@ module.exports = function (passport) {
 			});
 		});
 	}));
-
-
-
-
-
-
-	passport.use(new TwitterStrategy({
-			consumerKey: "SDiTmlCZyeZ5g40EqHx8rY3d2",
-			consumerSecret: "Vkt41njeZHUOQyJ2OUC5nFuaalZfvbzdQA1mSWjuCfm3BDW4Lf",
-			callbackURL: "http://127.0.0.1:3000/auth/twitter/callback"
-		},
-		function (token, refreshToken, profile, done) {
-			process.nextTick(function () {
-				User.findOne({ 'twitter.id': profile.id }, function (err, user) {
-					if (err) {
-						return done(err);
-					}
-
-					if (user) {
-						return done(null, user);
-					} else {
-						var newUser = new User();
-
-						newUser.twitter.id = profile.id;
-						newUser.twitter.username = profile.username;
-						newUser.twitter.displayName = profile.displayName;
-
-						newUser.save(function (err) {
-							if (err) {
-								throw err;
-							}
-
-							return done(null, newUser);
-						});
-					}
-				});
-			});
-		}));
-
-
-
-
-
-
 
 
 
