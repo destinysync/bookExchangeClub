@@ -1,0 +1,2 @@
+I:\Tutorial\Personal\Projects\bookTradingClub\obj\Debug\bookTradingClub.njsprojResolveAssemblyReference.cache
+I:\Tutorial\Personal\Projects\bookTradingClub\bin\Microsoft.NodejsTools.WebRole.dll

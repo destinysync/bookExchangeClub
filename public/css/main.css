@@ -1,0 +1,121 @@
+body {
+    background: #ffffff url('../img/noise.png') repeat;
+}
+
+.container {
+    padding-top: 100px;
+}
+
+.searchInputBox {
+    height: 60px;
+}
+
+.btn-lg {
+    height: 60px;
+}
+
+.glyphicon-search {
+    font-size: 35px;
+}
+
+.glyphicon-book {
+    font-size: 50px !important;
+}
+
+.glyphicon-user {
+    font-size: 20px;
+    display: block;
+}
+
+/*.signInDiv {*/
+    /*text-align: center;*/
+    /*padding: 5px 0;*/
+    /*display: inline-block;*/
+/*}*/
+
+.signIn {
+    margin-top: 10px;
+    display: block;
+    position: relative;
+}
+
+#signUpDes{
+    font-size: 12px;
+    padding: 25px 5px 5px 5px;
+}
+
+.profileIconDiv:hover .signInBox{
+    display: block;
+}
+
+.profileIconDiv:hover .signIconDiv {
+    background-color: #ededed;
+}
+
+.signInBoxDiv{
+    position: relative;
+    padding-top: 10px;
+}
+
+.signInBox {
+    width: 400px;
+    height: 300px;
+    display: none;
+    position: absolute;
+    border: 1px solid;
+    box-shadow: 0 6px 12px rgba(0,0,0,.175);
+    right: 0;
+    z-index: 999;
+    padding: 40px 50px 40px 50px;
+}
+
+h1 {
+    font-family: 'Lobster', cursive;
+    margin-top: 0;
+    font-size: 40px;
+    margin-bottom: 0;
+}
+
+.fstChar {
+    font-size: 60px !important;
+}
+
+.logo {
+    float: right;
+    text-align: center;
+    margin-top: -15px;
+}
+
+.logo h5 {
+    text-align: center;
+}
+
+.searchInputBox {
+    font-size: 25px;
+    font-family: 'Proza Libre', sans-serif;
+}
+
+.searchInputBox:focus {
+    border-color: black;
+box-shadow: none;
+}
+
+.slogon {
+    font-family: 'Proza Libre', sans-serif;
+}
+
+.emailInUseAlert {
+    visibility: hidden;
+    color: red;
+    padding-top: 5px;
+}
+
+.profileIconDiv {
+    text-align: center;
+    padding: 5px 5px 5px 5px;
+}
+
+.logOut {
+    margin-top: 10px;
+    font-family: 'Proza Libre', sans-serif;
+}

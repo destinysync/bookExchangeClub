@@ -1,0 +1,21 @@
+<div class="col-lg-3">
+     <img class='barImg' src=<% if (imageURL) { %>
+     <%= imageURL %>
+             <% } %>>
+     <div class="barNameAndGoingContainer">
+<span class="barName">
+     <% if (barName) { %>
+     <b> <%= barName  %> </b>
+     <% } %>
+</span><br>
+          <img class='barRating' src=<% if (barRating) { %>
+          <%= barRating %>
+                  <% } %>><br>
+          <span>1 GOING</span>
+     </div>
+<span class="barSnippetText">
+     <% if (barSnippetText) { %>
+     <i> " <%=  barSnippetText  %> "</i>
+     <% } %>
+</span>
+</div>
