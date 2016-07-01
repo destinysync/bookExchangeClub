@@ -64,6 +64,15 @@ module.exports = function (app, passport) {
 		app.route('/displayAllBooks')
 		.get(clickHandler.displayAllBooks);
 		
+		app.route('/getProfile')
+		.get(clickHandler.getProfile);
+		
+		
+		app.route('/changePassword/*')
+		.post(clickHandler.changePassword);
+		
+		
+		
 		app.route('/isAuthenticated')
 		.post(function (req, res) {
 			if (req.isAuthenticated()) {

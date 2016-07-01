@@ -92,6 +92,7 @@ module.exports = function (passport) {
 						newUser.local.books = [];
 						newUser.local.requests = [];
 						newUser.local.approvals = [];
+						newUser.local.profile = {};
 						
 						// save the user
 						newUser.save(function(err) {

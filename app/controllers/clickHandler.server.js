@@ -43,6 +43,40 @@ function generateAllBookDivs(bookObj, req, res) {
 function ClickHandler() {
 
 
+this.changePassword = function (req, res) {
+    var currentPassword = req.url.match(/currentPassword=(.*)&.*/)[1],
+    newPassword = req.url.match(/&newPassword=(.*)/)[1];
+    User.find({
+        _id: req.user._id
+    }, function(err, data) {
+        console.log(data);
+        if (err) throw err;
+        if (data[0].local.password == currentPassword) {
+            User.findOneAndUpdate({
+                '_id': req.user._id
+            }, {
+                $set: {
+                    'local.password': newPassword
+                }
+            }, {
+                new: true
+            }, function (err, data) {
+                if (err) throw err;
+                console.log(data);
+            })
+        }
+    })
+}
+
+
+    this.getProfile = function(req, res) {
+
+        console.log('here');
+var content = '<div class="col-lg-4 col-lg-offset-4"><form role="form" class="profileForm" id="userGeolocationForm"><div class="form-group"><label for="City"> City </label><input name="currentPassword" type="text" class="form-control" id="City"></div><div class="form-group"><label for="State"> State </label><input name="newPassword" type="text" class="form-control" id="State"></div></form><button type="submit" class="btn btn-primary" id="userGeoInfoResetButton">Submit</button><form role="form" class="profileForm" id="passwordResetForm"><div class="form-group"><label for="pwd"> Current Password:</label><input name="currentPassword" type="password" class="form-control" id="pwd"></div><div class="form-group"><label for="pwd">New Password:</label><input name="newPassword" type="password" class="form-control" id="pwd"></div></form><button type="submit" class="btn btn-primary" id="passwordRestButton">Submit</button></div>';       
+        res.end(content);
+    };
+
+
     this.displayAllBooks = function(req, res) {
         var allBookObjArray = [],
             count = 0;
@@ -54,7 +88,7 @@ function ClickHandler() {
                     for (var i = 0; i < data.length; i++) {
 
                         if (JSON.stringify(data[i]._id) != JSON.stringify(req.user._id)) {
-                            
+
                             for (var j = 0; j < data[i].local.books.length; j++) {
                                 allBookObjArray.push(data[i].local.books[j]);
                             }

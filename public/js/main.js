@@ -80,12 +80,12 @@ $(document).ready(function() {
     // });
 
 
-    $('#profileNav .profileTab').hover(function() {
+    $('#profileNav .profileTab').click(function() {
 
         var id = $(this).attr('id');
 
         if (id == 'requests') {
-            
+
             $(this).siblings().removeClass('active');
             $(this).addClass('active');
             $('#myBookContainer').html('');
@@ -93,19 +93,36 @@ $(document).ready(function() {
         else if (id == 'approvals') {
             $(this).siblings().removeClass('active');
             $(this).addClass('active');
-            $('#myBookContainer').html('');
+            // $('#myBookContainer').html('');
 
         }
         else if (id == 'books') {
+            $('#myBookContainer').html('');
             $(this).siblings().removeClass('active');
             $(this).addClass('active');
-                $.post('/displayMyBooks', function(data, status) {
-                    $('#myBookContainer').html(data);
-                })
+            $.post('/displayMyBooks', function(data, status) {
+                $('#myBookContainer').html(data);
+            })
         }
-
+        else if (id == 'profile') {
+            $(this).siblings().removeClass('active');
+            $(this).addClass('active');
+            $.get('/getProfile', function(data, status) {
+                $('#myBookContainer').html(data);
+            })
+        }
     })
 
+
+ $("body").on("click", "#passwordRestButton", function() {
+     var input = $('#passwordResetForm').serialize();
+     $.post('/changePassword/' + input, function(data, status) {
+         
+     })
+ });
+ 
+ 
+ 
 
     $("body").on("click", ".deleteButton", function() {
         var id = $(this).closest('.bookDiv').attr('id');
@@ -121,14 +138,13 @@ $(document).ready(function() {
         else if (window.location.pathname == '/') {
             $.post('/isAuthenticated', function(data, status) {
                 if (data.auth == 'true') {
-                 
-                       $('#' + id).remove(); 
-         
-                } else {
-                    
+                    $('#' + id).remove();
+                }
+                else {
+
                 }
             })
-            
+
 
         }
     });
