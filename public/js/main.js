@@ -84,13 +84,16 @@ $(document).ready(function() {
 
         var id = $(this).attr('id');
 
-        if (id == 'requests') {
-
+        if (id == 'requestsToMe') {
             $(this).siblings().removeClass('active');
             $(this).addClass('active');
+            $.post('/requestsToMe', function(data, status) {
+                $('#myBookContainer').html(data);
+            })
+            
             $('#myBookContainer').html('');
         }
-        else if (id == 'approvals') {
+        else if (id == 'requestsToOthers') {
             $(this).siblings().removeClass('active');
             $(this).addClass('active');
             // $('#myBookContainer').html('');
@@ -129,7 +132,9 @@ $(document).ready(function() {
 
         var className = $(this).closest('.bookDiv').attr('class');
         className = className.match(/col-lg-2 bookDiv (.*)/)[1];
-        console.log(className);
+        
+        var imgLink = $(this).closest('.bookContainerBG').siblings('.bookCover').attr('src');
+
 
         if (window.location.pathname == '/profile') {
             $(this).closest('.bookDiv').remove();
@@ -139,11 +144,15 @@ $(document).ready(function() {
             $.post('/isAuthenticated', function(data, status) {
                 if (data.auth == 'true') {
                     $('#' + id).remove();
+                    var url = '/sendTradeRequest/imgLink=' + imgLink + '&' + "bookID=" + id + "&" + "bookOwnerID=" + className;
+                    $.post(url , function(data, status) {
+                        
+                    });
                 }
                 else {
 
                 }
-            })
+            });
 
 
         }

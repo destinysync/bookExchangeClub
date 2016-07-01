@@ -9,8 +9,8 @@ var User = new Schema({
 		password: String,
 		profile: Object,
 		books: Object,
-		requests: Object,
-		approvals: Object
+		requestsToMe: Object,
+		requestsToOthers: Object
 	}
 });
 

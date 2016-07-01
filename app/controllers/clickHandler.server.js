@@ -28,7 +28,7 @@ function generateAllBookDivs(bookObj, req, res) {
     var count = 0;
 
     for (var i = 0; i < bookObj.length; i++) {
-        var divPart1 = "<div class='col-lg-2 bookDiv " + bookObj[i].userID + "' id='" + bookObj[i].bookID + "'><div class='bookContainer'><img src='" + bookObj[i].imgLink,
+        var divPart1 = "<div class='col-lg-2 bookDiv " + bookObj[i].userID + "' id='" + bookObj[i].bookID + "'><div class='bookContainer'><img class='bookCover' src='" + bookObj[i].imgLink,
             divPart2 = "' /><div class='bookContainerBG'><div class='deleteButton'><span class='glyphicon glyphicon-retweet'></span></div></div></div></div>",
             fullBookDiv = divPart1 + divPart2;
         fullBookDivs += fullBookDiv;
@@ -41,6 +41,61 @@ function generateAllBookDivs(bookObj, req, res) {
 }
 
 function ClickHandler() {
+
+
+this.requestsToMe = function (req, res) {
+    var userID = req.user._id;
+    User.find({
+        '_id': req.user._id
+    }, function (err, result) {
+        if (err) throw err;
+        console.log(result)
+        generateUserBookDivs(result[0].local.requestsToMe, req, res);
+    })
+}
+
+
+this.sendTradeRequest = function (req, res) {
+    var url = req.url,
+    imgLink = url.match(/\/sendTradeRequest\/imgLink=(.*)&/)[1],
+    bookID = url.match(/&bookID=(.*)&/)[1],
+    bookOwnerID = url.match(/&bookOwnerID=(.*)/)[1],
+    requesterID = req.user._id,
+    bookObj = {
+                'imgLink': imgLink,
+                'bookID': bookID,
+                'bookOwnerID': bookOwnerID,
+                'requesterID': requesterID
+            };
+    
+    User.findOneAndUpdate({
+        '_id': bookOwnerID
+    }, {
+        $push: {
+            'local.requestsToMe': bookObj
+        }
+    }, {
+        new: true
+    }, function (err, result) {
+        if (err) throw err;
+        console.log(result);
+    });
+    
+        User.findOneAndUpdate({
+        '_id': requesterID
+    }, {
+        $push: {
+            'local.requestsToOthers': bookObj
+        }
+    }, {
+        new: true
+    }, function (err, result) {
+        if (err) throw err;
+        console.log(result);
+    });
+    
+    console.log(req.url);
+};
 
 
 this.changePassword = function (req, res) {

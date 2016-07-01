@@ -67,11 +67,15 @@ module.exports = function (app, passport) {
 		app.route('/getProfile')
 		.get(clickHandler.getProfile);
 		
+		app.route('/sendTradeRequest/*')
+		.post(clickHandler.sendTradeRequest);
+		
 		
 		app.route('/changePassword/*')
 		.post(clickHandler.changePassword);
 		
-		
+		app.route('/requestsToMe')
+		.post(clickHandler.requestsToMe);
 		
 		app.route('/isAuthenticated')
 		.post(function (req, res) {
@@ -83,7 +87,7 @@ module.exports = function (app, passport) {
 			} else {
 				res.json({
 					'auth': 'false',
-					'userID': req.user._id
+					'userID': 'none'
 				});
 			}
 		})
