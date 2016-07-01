@@ -55,13 +55,21 @@ $(document).ready(function() {
         $('.profileIconDiv').html(data);
     });
 
-var myBookContainer = JSON.stringify(document.getElementById('myBookContainer'));
+    var myBookContainer = JSON.stringify(document.getElementById('myBookContainer'));
 
-if (myBookContainer !== null) {
-    $.post('/displayMyBooks', function (data, status) {
-        $('#myBookContainer').append(data);
-    })
-}
+    if (myBookContainer !== null) {
+        $.post('/displayMyBooks', function(data, status) {
+            $('#myBookContainer').append(data);
+        })
+    }
+
+    var allBookContainer = JSON.stringify(document.getElementById('allBookContainer'))
+
+    if (allBookContainer !== null) {
+        $.get('/displayAllBooks', function(data, status) {
+            $('#allBookContainer').append(data);
+        })
+    }
 
     // runFuncAfterFinishingTyping(2000, $("input[type='text']"), showSearchResult);
 
@@ -72,26 +80,57 @@ if (myBookContainer !== null) {
     // });
 
 
+    $('#profileNav .profileTab').hover(function() {
+
+        var id = $(this).attr('id');
+
+        if (id == 'requests') {
+            
+            $(this).siblings().removeClass('active');
+            $(this).addClass('active');
+            $('#myBookContainer').html('');
+        }
+        else if (id == 'approvals') {
+            $(this).siblings().removeClass('active');
+            $(this).addClass('active');
+            $('#myBookContainer').html('');
+
+        }
+        else if (id == 'books') {
+            $(this).siblings().removeClass('active');
+            $(this).addClass('active');
+                $.post('/displayMyBooks', function(data, status) {
+                    $('#myBookContainer').html(data);
+                })
+        }
+
+    })
 
 
+    $("body").on("click", ".deleteButton", function() {
+        var id = $(this).closest('.bookDiv').attr('id');
 
+        var className = $(this).closest('.bookDiv').attr('class');
+        className = className.match(/col-lg-2 bookDiv (.*)/)[1];
+        console.log(className);
 
+        if (window.location.pathname == '/profile') {
+            $(this).closest('.bookDiv').remove();
+            $.post('/delMyBookFromDB/' + id, function(data, status) {});
+        }
+        else if (window.location.pathname == '/') {
+            $.post('/isAuthenticated', function(data, status) {
+                if (data.auth == 'true') {
+                 
+                       $('#' + id).remove(); 
+         
+                } else {
+                    
+                }
+            })
+            
 
-
-
-
-
-
-
-
-
-
-
-    $(".container-fluid").on("click", ".going", function() {
-        $.post('/iAmGoing/' + this.id, function(data, status) {
-            $("#" + this.id).html(data + ' GOING');
-        });
+        }
     });
-
 
 });

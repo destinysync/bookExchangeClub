@@ -7,7 +7,9 @@ var User = new Schema({
 	local: {
 		id: String,
 		password: String,
-		books: Object
+		books: Object,
+		requests: Object,
+		approvals: Object
 	}
 });
 

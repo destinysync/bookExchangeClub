@@ -176,5 +176,7 @@ box-shadow: none;
 }
 
 .bookDiv {
+ /*   display: inline-block;*/
  margin-top: 30px;   
+height: 200px;
 }

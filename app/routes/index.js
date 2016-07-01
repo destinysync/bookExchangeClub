@@ -34,7 +34,7 @@ module.exports = function (app, passport) {
 
 	app.route('/signInOrSignUp/')
 		.post( passport.authenticate('signup', {
-			successRedirect: '/',
+			successRedirect: '/profile',
 			failureRedirect: '/',
 			failureFlash : true
 		}));
@@ -47,7 +47,7 @@ module.exports = function (app, passport) {
 			if (req.isAuthenticated()) {
 				res.sendFile(path + '/public/profile.html');
 			} else {
-				res.sendFile(path + '/public/index.html');
+				res.redirect('/');
 			}
 		});
 	
@@ -57,5 +57,26 @@ module.exports = function (app, passport) {
 	
 	app.route('/addBooks/*')
 		.post(clickHandler.addBooks);
+		
+		app.route('/delMyBookFromDB/*')
+		.post(clickHandler.delMyBookFromDB);
+		
+		app.route('/displayAllBooks')
+		.get(clickHandler.displayAllBooks);
+		
+		app.route('/isAuthenticated')
+		.post(function (req, res) {
+			if (req.isAuthenticated()) {
+				res.json({
+					'auth': 'true',
+					'userID': req.user._id
+				});
+			} else {
+				res.json({
+					'auth': 'false',
+					'userID': req.user._id
+				});
+			}
+		})
 	
 };
