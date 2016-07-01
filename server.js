@@ -15,6 +15,11 @@ app.use(cookieParser());
 require('./app/config/passport')(passport);
 
 mongoose.connect("mongodb://admin:admin2020@ds015720.mlab.com:15720/heroku_8mmg8q9c");
+// mongoose.connection.on('open', function(){
+//     mongoose.connection.db.dropDatabase(function(err){
+//     console.log(err);
+//     });
+// });
 
 app.use('/controllers', express.static(process.cwd() + '/app/controllers'));
 app.use('/public', express.static(process.cwd() + '/public'));

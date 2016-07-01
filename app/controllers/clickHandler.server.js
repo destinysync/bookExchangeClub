@@ -1,6 +1,26 @@
 'use strict';
 
 var path = process.cwd();
+var User = require('../models/users');
+var _ = require('underscore');
+
+function generateUserBookDivs(imgLinkArray, req, res) {
+    
+    var fullBookDivs = '';
+    var count = 0;
+    
+    for (var i = 0; i < imgLinkArray.length; i++) {
+            var divPart1 = "<div class='col-lg-2 bookDiv' id='" + req.user._id + "'><div class='bookContainer'><img src='" + imgLinkArray[i],
+            divPart2 = "' /><div class='bookContainerBG'><div class='deleteButton'><span><b>X</b></span></div></div></div></div>",
+            fullBookDiv = divPart1 + divPart2;
+            fullBookDivs += fullBookDiv;
+            count ++;
+    }
+
+    if (count == imgLinkArray.length) {
+        res.end(fullBookDivs);
+    }
+}
 
 function ClickHandler() {
 
@@ -16,17 +36,43 @@ function ClickHandler() {
     };
     
     this.addBooks = function (req, res) {
-        console.log('here');
-        var json = '';
+
+        var json = '',
+        imgLink = '',
+        title = '',
+        obj = '';
+        
         function sendJSON() {
-            console.log('json:  ' + json);
-            res.end(json);
+            json = JSON.parse(json);
+            imgLink = json.items[0].volumeInfo.imageLinks.thumbnail;
+            title = json.items[0].volumeInfo.title;
+            obj = {
+                imgLink: imgLink,
+                title: title
+            }
+            
+            User.findOneAndUpdate({
+                '_id': req.user._id
+            }, {
+                $push: {
+                    'local.books': obj
+                }
+            }, {
+                new: true
+            }, function (err, data) {
+                if (err) throw err;
+             
+            });
+            generateUserBookDivs([imgLink], req, res);
         }
         
+        var keyword = req.url.match(/\/addBooks\/(.*)/)[1],
+        path = '/books/v1/volumes?q='+ keyword + '&key=AIzaSyAoXm0EJoHGtxLnyJyammD_bNoNNFS0RGs';
+        
         function getJSON(callback) {
-             require('https').request({
+            require('https').request({
             host: 'www.googleapis.com',
-            path: '/books/v1/volumes?q=flowers+inauthor:keyes&key=AIzaSyAoXm0EJoHGtxLnyJyammD_bNoNNFS0RGs',
+            path: path,
             method: 'GET'
         }, function(res) {
             res.setEncoding('utf8');
@@ -35,45 +81,21 @@ function ClickHandler() {
                 body += chunk;
             });
             res.on('end', function() {
-                console.log('gggggggggggggg');
-                // body = JSON.parse(body);
                 json = body;
                 callback();
             });
         }).end();
         }
-       
-       
-       
-       
-       
-       
-       
-       
-        //     require('https').request('https://www.googleapis.com/books/v1/volumes?q=flowers+inauthor:keyes&key=AIzaSyAoXm0EJoHGtxLnyJyammD_bNoNNFS0RGs', function(res) {
-        //     res.setEncoding('utf8');
-        //     var body = '';
-        //     res.on('data', function(chunk) {
-        //         body += chunk;
-        //     });
-        //     res.on('end', function() {
-        //         console.log(body);
-        //         // body = JSON.parse(body);
-        //         json = body;
-        //         // callback();
-        //     });
-        // }).end();
-       
-       
-       
-       
-       
-       
-       
-       
-       
       getJSON(sendJSON);
     };
+    
+    this.displayMyBooks = function (req, res) {
+        if (req.isAuthenticated()) {
+                   var myBooksOjb = req.user.local.books;
+        var imgLinkArray = _.pluck(myBooksOjb, 'imgLink');
+        generateUserBookDivs(imgLinkArray, req, res); 
+        }
+    }
 }
 
 module.exports = ClickHandler;

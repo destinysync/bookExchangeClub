@@ -52,7 +52,8 @@ module.exports = function (app, passport) {
 		});
 	
 	
-	
+	app.route('/displayMyBooks')
+	.post(clickHandler.displayMyBooks);
 	
 	app.route('/addBooks/*')
 		.post(clickHandler.addBooks);

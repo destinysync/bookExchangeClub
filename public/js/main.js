@@ -3,7 +3,7 @@ function signInOrSignUp() {
     var email = decodeURIComponent(str.match(/username=(.*)&.*/)[1]);
     var pw = decodeURIComponent(str.match(/&password=(.*)/)[1]);
     if (email !== '' && pw !== '') {
-        $.post('/signInOrSignUp/', function (data, status) {
+        $.post('/signInOrSignUp/', function(data, status) {
 
         })
     }
@@ -15,12 +15,12 @@ function runFuncAfterFinishingTyping(delay, selector, func) {
     var $input = selector;
     // example: selector = $("input[type='text']")
 
-    $input.on('keyup', function () {
+    $input.on('keyup', function() {
         clearTimeout(typingTimer);
         typingTimer = setTimeout(doneTyping, doneTypingInterval);
     });
 
-    $input.on('keydown', function () {
+    $input.on('keydown', function() {
         clearTimeout(typingTimer);
     });
 
@@ -29,60 +29,69 @@ function runFuncAfterFinishingTyping(delay, selector, func) {
     }
 }
 
-$(document).ready(function () {
-
-    $('.signIconDiv').hover(function () {
-        $('#Password').val("");
-        $('#Email').val("");
-    });
+$(document).ready(function() {
 
     function showSearchResult() {
-        var str = $(".searchInputBox").serialize();
-        var bbc = $('.searchInputBox').val();
-        alert(str);
-        // $('.searchInputBox').value("");
-        $('.searchInputBox').val("");
-        // str = str.match(/searchValue=(.*)/)[1];
-        // str = str.split('+').join(' ');
+        // var str = $(".searchInputBox").serialize();
+        alert('str');
 
-        // $.post('/searchResult/' + str, function (data, status) {
-        //     $('.searchResult').html(data);
+
+        // $('.searchInputBox').val("");
+        // $.post('/addBooks/' + str, function(data, status) {
+        //     $('.container').append(data);
         // });
-
-        $.post('/addBooks/' + str, function (data, status) {
-alert(data);
-        });
     }
-    
-    function addBooks(){
+
+    function addBooks() {
         var str = $(".searchInputBox").serialize();
-        str = decodeURIComponent(str.match(/addBookBox=(.*)&.*/)[1]);
-        alert('addbook');
-        $.post('/addBooks/' + str, function (data, status) {
-            
+        str = decodeURIComponent(str.match(/addBookBox=(.*)/)[1]);
+        $.post('/addBooks/' + str, function(data, status) {
+            $('.container').append(data);
         });
-        
+        $('.searchInputBox').val("");
     }
 
-    $.post('/changeLoginIcon', function (data, status) {
+    $.post('/changeLoginIcon', function(data, status) {
         $('.profileIconDiv').html(data);
     });
-    
-    runFuncAfterFinishingTyping(2000, $("input[type='text']"), showSearchResult);
-    
-    // runFuncAfterFinishingTyping(2000, $("input[type='text']"), addBooks);
+
+var myBookContainer = JSON.stringify(document.getElementById('myBookContainer'));
+
+if (myBookContainer !== null) {
+    $.post('/displayMyBooks', function (data, status) {
+        $('#myBookContainer').append(data);
+    })
+}
+
+    // runFuncAfterFinishingTyping(2000, $("input[type='text']"), showSearchResult);
+
+    runFuncAfterFinishingTyping(2000, $(".addBookBox"), addBooks);
 
     // $('#signUpSubmit').click(function () {
     //     signInOrSignUp();
     // });
 
 
-    $(".container-fluid").on("click", ".going", function () {
-        $.post('/iAmGoing/' + this.id, function (data, status) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    $(".container-fluid").on("click", ".going", function() {
+        $.post('/iAmGoing/' + this.id, function(data, status) {
             $("#" + this.id).html(data + ' GOING');
         });
     });
 
 
 });
-
