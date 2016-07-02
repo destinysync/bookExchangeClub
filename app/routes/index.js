@@ -70,12 +70,20 @@ module.exports = function (app, passport) {
 		app.route('/sendTradeRequest/*')
 		.post(clickHandler.sendTradeRequest);
 		
+		app.route('/deleteRequestToMe/*')
+		.post(clickHandler.deleteRequestToMe);
+		
+		app.route('/requestsToOthers')
+		.post(clickHandler.requestsToOthers);
 		
 		app.route('/changePassword/*')
 		.post(clickHandler.changePassword);
 		
 		app.route('/requestsToMe')
 		.post(clickHandler.requestsToMe);
+		
+		app.route('/delRequestsToOthers/*')
+		.post(clickHandler.delRequestsToOthers)
 		
 		app.route('/isAuthenticated')
 		.post(function (req, res) {

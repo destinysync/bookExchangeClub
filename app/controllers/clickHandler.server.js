@@ -4,6 +4,42 @@ var path = process.cwd();
 var User = require('../models/users');
 var _ = require('underscore');
 
+function generateRequestsToMeBookDivs(bookObj, req, res) {
+    var userID = req.user._id;
+    var fullBookDivs = '';
+    var count = 0;
+
+    for (var i = 0; i < bookObj.length; i++) {
+        var divPart1 = "<div class='col-lg-2 bookDiv " + bookObj[i].userID + "' id='" + bookObj[i].bookID + "'><div class='bookContainer'><img src='" + bookObj[i].imgLink,
+            divPart2 = "' /><div class='bookContainerBG'><div class='approveRequestToMeButton'><span class='glyphicon glyphicon-ok'><b></b></span></div><div class='deleteRequestToMeButton'><span><b>X</b></span></div></div></div></div>",
+            fullBookDiv = divPart1 + divPart2;
+        fullBookDivs += fullBookDiv;
+        count++;
+    }
+
+    if (count == bookObj.length) {
+        res.end(fullBookDivs);
+    }
+}
+
+function generateRequestsToOthersBookDivs(bookObj, req, res) {
+
+    var fullBookDivs = '';
+    var count = 0;
+
+    for (var i = 0; i < bookObj.length; i++) {
+        var divPart1 = "<div class='col-lg-4 bookDiv " + bookObj[i].bookOwnerID + "' id='" + bookObj[i].bookID + "'><div class='bookContainer'><img src='" + bookObj[i].imgLink,
+            divPart2 = "' /><div class='bookContainerBG'><div class='delRequestsToOthersButton'><span><b>X</b></span></div></div></div></div>",
+            fullBookDiv = divPart1 + divPart2;
+        fullBookDivs += fullBookDiv;
+        count++;
+    }
+
+    if (count == bookObj.length) {
+        res.end(fullBookDivs);
+    }
+}
+
 function generateUserBookDivs(bookObj, req, res) {
 
     var fullBookDivs = '';
@@ -42,92 +78,166 @@ function generateAllBookDivs(bookObj, req, res) {
 
 function ClickHandler() {
 
+    this.delRequestsToOthers = function(req, res) {
+        var bookID = req.url.match(/\/delRequestsToOthers\/(.*)&.*/)[1],
+            ownerID = req.url.match(/&(.*)/)[1];
 
-this.requestsToMe = function (req, res) {
-    var userID = req.user._id;
-    User.find({
-        '_id': req.user._id
-    }, function (err, result) {
-        if (err) throw err;
-        console.log(result)
-        generateUserBookDivs(result[0].local.requestsToMe, req, res);
-    })
-}
+console.log(bookID + "     " + ownerID);
+
+        if (req.isAuthenticated()) {
+            User.findOneAndUpdate({
+                '_id': req.user._id
+            }, {
+                $pull: {
+                    'local.requestsToOthers': {
+                        'bookID': bookID
+                    }
+                }
+            }, {
+                new: true
+            }, function(err, result) {
+                
+                if (err) throw err;
+                console.log(result);
+                res.end('del');
+            })
 
 
-this.sendTradeRequest = function (req, res) {
-    var url = req.url,
-    imgLink = url.match(/\/sendTradeRequest\/imgLink=(.*)&/)[1],
-    bookID = url.match(/&bookID=(.*)&/)[1],
-    bookOwnerID = url.match(/&bookOwnerID=(.*)/)[1],
-    requesterID = req.user._id,
-    bookObj = {
+            User.findOneAndUpdate({
+                '_id': ownerID
+            }, {
+                $pull: {
+                    'local.requestsToMe': {
+                        'bookID': bookID
+                    }
+                }
+            }, {
+                new: true
+            }, function(err, result) {
+                
+                if (err) throw err;
+                res.end('del');
+            });
+
+
+        }
+
+    };
+
+    this.deleteRequestToMe = function(req, res) {
+        var bookID = req.url.match(/\/deleteRequestToMe\/(.*)/)[1];
+
+        if (req.isAuthenticated()) {
+            User.findOneAndUpdate({
+                '_id': req.user._id
+            }, {
+                $pull: {
+                    'local.requestsToMe': {
+                        'bookID': bookID
+                    }
+                }
+            }, {
+                new: true
+            }, function(err, result) {
+                if (err) throw err;
+                res.end('del');
+            });
+        }
+    };
+
+    this.requestsToMe = function(req, res) {
+        if (req.isAuthenticated()) {
+            User.find({
+                '_id': req.user._id
+            }, function(err, result) {
+                if (err) throw err;
+                generateRequestsToMeBookDivs(result[0].local.requestsToMe, req, res);
+            });
+        }
+    };
+
+    this.requestsToOthers = function(req, res) {
+        if (req.isAuthenticated()) {
+            User.find({
+                '_id': req.user._id
+            }, function(err, result) {
+                if (err) throw err;
+                generateRequestsToOthersBookDivs(result[0].local.requestsToOthers, req, res);
+            })
+        }
+    }
+
+
+    this.sendTradeRequest = function(req, res) {
+        var url = req.url,
+            imgLink = url.match(/\/sendTradeRequest\/imgLink=(.*)&/)[1],
+            bookID = url.match(/&bookID=(.*)&/)[1],
+            bookOwnerID = url.match(/&bookOwnerID=(.*)/)[1],
+            requesterID = req.user._id,
+            bookObj = {
                 'imgLink': imgLink,
                 'bookID': bookID,
                 'bookOwnerID': bookOwnerID,
                 'requesterID': requesterID
             };
-    
-    User.findOneAndUpdate({
-        '_id': bookOwnerID
-    }, {
-        $push: {
-            'local.requestsToMe': bookObj
-        }
-    }, {
-        new: true
-    }, function (err, result) {
-        if (err) throw err;
-        console.log(result);
-    });
-    
+
         User.findOneAndUpdate({
-        '_id': requesterID
-    }, {
-        $push: {
-            'local.requestsToOthers': bookObj
-        }
-    }, {
-        new: true
-    }, function (err, result) {
-        if (err) throw err;
-        console.log(result);
-    });
-    
-    console.log(req.url);
-};
+            '_id': bookOwnerID
+        }, {
+            $push: {
+                'local.requestsToMe': bookObj
+            }
+        }, {
+            new: true
+        }, function(err, result) {
+            if (err) throw err;
+        });
+
+        User.findOneAndUpdate({
+            '_id': requesterID
+        }, {
+            $push: {
+                'local.requestsToOthers': bookObj
+            }
+        }, {
+            new: true
+        }, function(err, result) {
+            if (err) throw err;
+        });
+
+    };
 
 
-this.changePassword = function (req, res) {
-    var currentPassword = req.url.match(/currentPassword=(.*)&.*/)[1],
-    newPassword = req.url.match(/&newPassword=(.*)/)[1];
-    User.find({
-        _id: req.user._id
-    }, function(err, data) {
-        console.log(data);
-        if (err) throw err;
-        if (data[0].local.password == currentPassword) {
-            User.findOneAndUpdate({
-                '_id': req.user._id
-            }, {
-                $set: {
-                    'local.password': newPassword
-                }
-            }, {
-                new: true
-            }, function (err, data) {
-                if (err) throw err;
-                console.log(data);
-            })
-        }
-    })
-}
+    this.changePassword = function(req, res) {
+        var currentPassword = req.url.match(/currentPassword=(.*)&.*/)[1],
+            newPassword = req.url.match(/&newPassword=(.*)/)[1];
+        User.find({
+            _id: req.user._id
+        }, function(err, data) {
+
+            if (err) throw err;
+            if (data[0].local.password == currentPassword) {
+                User.findOneAndUpdate({
+                    '_id': req.user._id
+                }, {
+                    $set: {
+                        'local.password': newPassword
+                    }
+                }, {
+                    new: true
+                }, function(err, data) {
+                    if (err) throw err;
+                    
+                })
+            }
+        })
+    }
 
 
     this.getProfile = function(req, res) {
 
-        console.log('here');
-var content = '<div class="col-lg-4 col-lg-offset-4"><form role="form" class="profileForm" id="userGeolocationForm"><div class="form-group"><label for="City"> City </label><input name="currentPassword" type="text" class="form-control" id="City"></div><div class="form-group"><label for="State"> State </label><input name="newPassword" type="text" class="form-control" id="State"></div></form><button type="submit" class="btn btn-primary" id="userGeoInfoResetButton">Submit</button><form role="form" class="profileForm" id="passwordResetForm"><div class="form-group"><label for="pwd"> Current Password:</label><input name="currentPassword" type="password" class="form-control" id="pwd"></div><div class="form-group"><label for="pwd">New Password:</label><input name="newPassword" type="password" class="form-control" id="pwd"></div></form><button type="submit" class="btn btn-primary" id="passwordRestButton">Submit</button></div>';       
+        
+        var content = '<div class="col-lg-4 col-lg-offset-4"><form role="form" class="profileForm" id="userGeolocationForm"><div class="form-group"><label for="City"> City </label><input name="currentPassword" type="text" class="form-control" id="City"></div><div class="form-group"><label for="State"> State </label><input name="newPassword" type="text" class="form-control" id="State"></div></form><button type="submit" class="btn btn-primary" id="userGeoInfoResetButton">Submit</button><form role="form" class="profileForm" id="passwordResetForm"><div class="form-group"><label for="pwd"> Current Password:</label><input name="currentPassword" type="password" class="form-control" id="pwd"></div><div class="form-group"><label for="pwd">New Password:</label><input name="newPassword" type="password" class="form-control" id="pwd"></div></form><button type="submit" class="btn btn-primary" id="passwordRestButton">Submit</button></div>';
         res.end(content);
     };
 

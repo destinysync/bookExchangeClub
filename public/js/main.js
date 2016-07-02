@@ -85,19 +85,23 @@ $(document).ready(function() {
         var id = $(this).attr('id');
 
         if (id == 'requestsToMe') {
+             $('#myBookContainer').html("");
             $(this).siblings().removeClass('active');
             $(this).addClass('active');
             $.post('/requestsToMe', function(data, status) {
                 $('#myBookContainer').html(data);
             })
-            
-            $('#myBookContainer').html('');
         }
         else if (id == 'requestsToOthers') {
+            var contentDivs = "<div class='col-lg-6' id='unapprovedRequests'><div class='row'><div class='col-lg-12'>Unapproved Requests</div></div></div><div class='col-lg-6' id='approvedRequests'><div class='row'><div class='col-lg-12'>Approved Requests</div></div></div>"
+             $('#myBookContainer').html(contentDivs);
             $(this).siblings().removeClass('active');
             $(this).addClass('active');
-            // $('#myBookContainer').html('');
-
+             $.post('/requestsToOthers', function(data, status) {
+               
+              $('#unapprovedRequests').append(data);
+              $('#approvedRequests').append(data);
+            })
         }
         else if (id == 'books') {
             $('#myBookContainer').html('');
@@ -108,6 +112,7 @@ $(document).ready(function() {
             })
         }
         else if (id == 'profile') {
+             $('#myBookContainer').html("");
             $(this).siblings().removeClass('active');
             $(this).addClass('active');
             $.get('/getProfile', function(data, status) {
@@ -125,8 +130,6 @@ $(document).ready(function() {
  });
  
  
- 
-
     $("body").on("click", ".deleteButton", function() {
         var id = $(this).closest('.bookDiv').attr('id');
 
@@ -153,9 +156,53 @@ $(document).ready(function() {
 
                 }
             });
-
-
         }
     });
+
+
+
+$("body").on("click", ".deleteRequestToMeButton", function() {
+    $(this).closest('.bookDiv').remove();
+    var bookID = $(this).closest('.bookDiv').attr('id');
+    $.post('/deleteRequestToMe/' + bookID, function(data, status) {
+        
+    })
+    
+});
+
+
+
+$("body").on("click", ".delRequestsToOthersButton", function() {
+    
+     
+    
+    var bookID = $(this).closest('.bookDiv').attr('id');
+    
+    var className = $(this).closest('.bookDiv').attr('class');
+        className = className.match(/col-lg-4 bookDiv (.*)/)[1];
+ 
+        $(this).closest('.bookDiv').remove();
+
+    $.post('/delRequestsToOthers/' + bookID + "&" + className , function(data, status) {
+        
+    })
+    
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 });
