@@ -43,13 +43,7 @@ module.exports = function (app, passport) {
 		.post(clickHandler.changeLoginIcon);
 	
 	app.route('/profile')
-		.get(function(req, res) {
-			if (req.isAuthenticated()) {
-				res.sendFile(path + '/public/profile.html');
-			} else {
-				res.redirect('/');
-			}
-		});
+		.get(clickHandler.sendProfilePage);
 	
 	
 	app.route('/displayMyBooks')
@@ -83,7 +77,14 @@ module.exports = function (app, passport) {
 		.post(clickHandler.requestsToMe);
 		
 		app.route('/delRequestsToOthers/*')
-		.post(clickHandler.delRequestsToOthers)
+		.post(clickHandler.delRequestsToOthers);
+		
+		app.route('/approveRequestToMe/*')
+		.post(clickHandler.approveRequestToMe);
+		
+		app.route('/getApprovedRequestCouint')
+		.post(clickHandler.getApprovedRequestCouint);
+		
 		
 		app.route('/isAuthenticated')
 		.post(function (req, res) {

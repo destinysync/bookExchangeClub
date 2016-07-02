@@ -24,19 +24,41 @@ function generateRequestsToMeBookDivs(bookObj, req, res) {
 
 function generateRequestsToOthersBookDivs(bookObj, req, res) {
 
-    var fullBookDivs = '';
-    var count = 0;
+    var fullBookDivsApproved = '',
+        fullBookDivsUnApproved = '',
+        divPart1 = '',
+        divPart2 = '',
+        fullBookDiv = '',
+        count = 0;
 
     for (var i = 0; i < bookObj.length; i++) {
-        var divPart1 = "<div class='col-lg-4 bookDiv " + bookObj[i].bookOwnerID + "' id='" + bookObj[i].bookID + "'><div class='bookContainer'><img src='" + bookObj[i].imgLink,
-            divPart2 = "' /><div class='bookContainerBG'><div class='delRequestsToOthersButton'><span><b>X</b></span></div></div></div></div>",
-            fullBookDiv = divPart1 + divPart2;
-        fullBookDivs += fullBookDiv;
+
+        if (bookObj[i].isApproved == 'true') {
+
+            divPart1 = "<div class='col-lg-4 bookDiv " + bookObj[i].bookOwnerID + "' id='" + bookObj[i].bookID + "'><div class='bookContainer'><img src='" + bookObj[i].imgLink,
+                divPart2 = "' /><div class='bookContainerBG'><div class='delRequestsToOthersButton'><span><b>X</b></span></div></div></div></div>",
+                fullBookDiv = divPart1 + divPart2;
+            fullBookDivsApproved += fullBookDiv;
+
+        }
+        else {
+
+            divPart1 = "<div class='col-lg-4 bookDiv " + bookObj[i].bookOwnerID + "' id='" + bookObj[i].bookID + "'><div class='bookContainer'><img src='" + bookObj[i].imgLink,
+                divPart2 = "' /><div class='bookContainerBG'><div class='delRequestsToOthersButton'><span><b>X</b></span></div></div></div></div>",
+                fullBookDiv = divPart1 + divPart2;
+            fullBookDivsUnApproved += fullBookDiv;
+
+        }
+
         count++;
     }
 
     if (count == bookObj.length) {
-        res.end(fullBookDivs);
+        var json = {
+            'approved': fullBookDivsApproved,
+            'unapproved': fullBookDivsUnApproved
+        };
+        res.json(json);
     }
 }
 
@@ -77,12 +99,123 @@ function generateAllBookDivs(bookObj, req, res) {
 }
 
 function ClickHandler() {
+    
+    this.sendProfilePage = function (req, res) {
+        
+			if (req.isAuthenticated()) {
+				res.sendFile(path + '/public/profile.html');
+			} else {
+				res.redirect('/');
+			}
+    };
+    
+    
+    this.getApprovedRequestCouint = function (req, res) {
+        User.find({
+            '_id': req.user._id
+        }, function(err, result) {
+            
+            console.log(JSON.stringify(result));
+            
+            if (err) throw err;
+            var arr = result[0].local.requestsToOthers,
+            count = 0, countApproved = 0;
+            
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i].isApproved == 'true') {
+                    countApproved ++;
+                }
+                count++;
+            }
+            if (count == arr.length) {
+                res.json(countApproved);
+            }
+        });
+    };
+
+    this.approveRequestToMe = function(req, res) {
+        var bookID = req.url.match(/\/approveRequestToMe\/(.*)/)[1],
+            requesterID = '';
+
+
+
+        User.find({
+            '_id': req.user._id
+        }, function(err, result) {
+            if (err) throw err;
+            var arr = result[0].local.requestsToMe;
+
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i].bookID == bookID) {
+                    requesterID = arr[i].requesterID;
+                    arr[i].isApproved = 'true';
+                    var arrApproved = arr[i];
+                    
+                    
+                    
+                    User.findOneAndUpdate({
+                        '_id': requesterID,
+                    }, {
+                        '$pull': {
+                            'local.requestsToOthers': {
+                                'bookID': bookID
+
+                            }
+                        }
+                    }, {
+                        new: true
+                    }, function(err, result) {
+                        if (err) throw err;
+                        // console.log(JSON.stringify(result));
+                    });
+
+
+
+                    User.findOneAndUpdate({
+                        '_id': requesterID,
+                    }, {
+                        '$push': {
+                            'local.requestsToOthers': arrApproved
+                        }
+                    }, {
+                        new: true
+                    }, function(err, result) {
+                        if (err) throw err;
+                        // console.log(JSON.stringify(result));
+                    });
+
+
+
+                    User.findOneAndUpdate({
+                        '_id': req.user._id
+                    }, {
+                        $pull: {
+                            'local.requestsToMe': {
+                                'bookID': bookID
+                            }
+                        }
+                    }, {
+                        new: true
+                    }, function(err, result) {
+                        if (err) throw err;
+                    });
+
+                    break;
+                }
+            }
+
+        });
+
+
+
+
+    };
 
     this.delRequestsToOthers = function(req, res) {
         var bookID = req.url.match(/\/delRequestsToOthers\/(.*)&.*/)[1],
             ownerID = req.url.match(/&(.*)/)[1];
 
-console.log(bookID + "     " + ownerID);
+        console.log(bookID + "     " + ownerID);
 
         if (req.isAuthenticated()) {
             User.findOneAndUpdate({
@@ -96,7 +229,7 @@ console.log(bookID + "     " + ownerID);
             }, {
                 new: true
             }, function(err, result) {
-                
+
                 if (err) throw err;
                 console.log(result);
                 res.end('del');
@@ -114,7 +247,7 @@ console.log(bookID + "     " + ownerID);
             }, {
                 new: true
             }, function(err, result) {
-                
+
                 if (err) throw err;
                 res.end('del');
             });
@@ -178,7 +311,8 @@ console.log(bookID + "     " + ownerID);
                 'imgLink': imgLink,
                 'bookID': bookID,
                 'bookOwnerID': bookOwnerID,
-                'requesterID': requesterID
+                'requesterID': requesterID,
+                'isApproved': 'false'
             };
 
         User.findOneAndUpdate({
@@ -227,7 +361,7 @@ console.log(bookID + "     " + ownerID);
                     new: true
                 }, function(err, data) {
                     if (err) throw err;
-                    
+
                 })
             }
         })
@@ -236,7 +370,7 @@ console.log(bookID + "     " + ownerID);
 
     this.getProfile = function(req, res) {
 
-        
+
         var content = '<div class="col-lg-4 col-lg-offset-4"><form role="form" class="profileForm" id="userGeolocationForm"><div class="form-group"><label for="City"> City </label><input name="currentPassword" type="text" class="form-control" id="City"></div><div class="form-group"><label for="State"> State </label><input name="newPassword" type="text" class="form-control" id="State"></div></form><button type="submit" class="btn btn-primary" id="userGeoInfoResetButton">Submit</button><form role="form" class="profileForm" id="passwordResetForm"><div class="form-group"><label for="pwd"> Current Password:</label><input name="currentPassword" type="password" class="form-control" id="pwd"></div><div class="form-group"><label for="pwd">New Password:</label><input name="newPassword" type="password" class="form-control" id="pwd"></div></form><button type="submit" class="btn btn-primary" id="passwordRestButton">Submit</button></div>';
         res.end(content);
     };

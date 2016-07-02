@@ -30,18 +30,15 @@ function runFuncAfterFinishingTyping(delay, selector, func) {
 }
 
 $(document).ready(function() {
-
-    function showSearchResult() {
-        // var str = $(".searchInputBox").serialize();
-        alert('str');
-
-
-        // $('.searchInputBox').val("");
-        // $.post('/addBooks/' + str, function(data, status) {
-        //     $('.container').append(data);
-        // });
+    
+    if (window.location.pathname == '/profile') {
+        
+        $.post('/getApprovedRequestCouint', function(data, status) {
+            $('.badge').html(data);
+        });
     }
-
+    
+    
     function addBooks() {
         var str = $(".searchInputBox").serialize();
         str = decodeURIComponent(str.match(/addBookBox=(.*)/)[1]);
@@ -73,7 +70,7 @@ $(document).ready(function() {
 
     // runFuncAfterFinishingTyping(2000, $("input[type='text']"), showSearchResult);
 
-    runFuncAfterFinishingTyping(2000, $(".addBookBox"), addBooks);
+    runFuncAfterFinishingTyping(500, $(".addBookBox"), addBooks);
 
     // $('#signUpSubmit').click(function () {
     //     signInOrSignUp();
@@ -90,7 +87,7 @@ $(document).ready(function() {
             $(this).addClass('active');
             $.post('/requestsToMe', function(data, status) {
                 $('#myBookContainer').html(data);
-            })
+            });
         }
         else if (id == 'requestsToOthers') {
             var contentDivs = "<div class='col-lg-6' id='unapprovedRequests'><div class='row'><div class='col-lg-12'>Unapproved Requests</div></div></div><div class='col-lg-6' id='approvedRequests'><div class='row'><div class='col-lg-12'>Approved Requests</div></div></div>"
@@ -99,9 +96,9 @@ $(document).ready(function() {
             $(this).addClass('active');
              $.post('/requestsToOthers', function(data, status) {
                
-              $('#unapprovedRequests').append(data);
-              $('#approvedRequests').append(data);
-            })
+              $('#unapprovedRequests').append(data.unapproved);
+              $('#approvedRequests').append(data.approved);
+            });
         }
         else if (id == 'books') {
             $('#myBookContainer').html('');
@@ -122,7 +119,7 @@ $(document).ready(function() {
     })
 
 
- $("body").on("click", "#passwordRestButton", function() {
+$("body").on("click", "#passwordRestButton", function() {
      var input = $('#passwordResetForm').serialize();
      $.post('/changePassword/' + input, function(data, status) {
          
@@ -130,7 +127,7 @@ $(document).ready(function() {
  });
  
  
-    $("body").on("click", ".deleteButton", function() {
+$("body").on("click", ".deleteButton", function() {
         var id = $(this).closest('.bookDiv').attr('id');
 
         var className = $(this).closest('.bookDiv').attr('class');
@@ -160,7 +157,6 @@ $(document).ready(function() {
     });
 
 
-
 $("body").on("click", ".deleteRequestToMeButton", function() {
     $(this).closest('.bookDiv').remove();
     var bookID = $(this).closest('.bookDiv').attr('id');
@@ -169,7 +165,6 @@ $("body").on("click", ".deleteRequestToMeButton", function() {
     })
     
 });
-
 
 
 $("body").on("click", ".delRequestsToOthersButton", function() {
@@ -193,10 +188,19 @@ $("body").on("click", ".delRequestsToOthersButton", function() {
 
 
 
+$("body").on("click", ".approveRequestToMeButton", function() {
+    
+    var bookID = $(this).closest('.bookDiv').attr('id');
+    
+    // var className = $(this).closest('.bookDiv').attr('class');
+    //     className = className.match(/col-lg-2 bookDiv (.*)/)[1];
+ 
+    $(this).closest('.bookDiv').remove();
 
-
-
-
+    $.post('/approveRequestToMe/' + bookID, function(data, status) {
+        
+    });
+});
 
 
 
